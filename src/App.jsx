@@ -1,30 +1,50 @@
-import React, { useRef } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { Box, OrbitControls } from "@react-three/drei";
+import React, { Suspense } from 'react';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls, Sparkles } from '@react-three/drei';
+import { EffectComposer, Noise } from '@react-three/postprocessing';
+import { Model } from './Model';
+import * as THREE from 'three';
+import { SVGFrame } from './SVGFrame';
 
-const Scene = () => {
-  const boxRef = useRef();
-  useFrame((state, delta) => {
-    boxRef.current.rotation.y += 0.02;
-  });
-
+export default function App() {
   return (
-    <>
-      <Box ref={boxRef} args={[1, 1, 1]} rotation={[0.5, 0, 0]}>
-        <meshNormalMaterial />
-      </Box>
-      <ambientLight />
-    </>
-  );
-};
+    <Canvas
+      shadows
+      camera={{ position: [0, 2, 10], fov: 10 }}
+      style={{ width: '100vw', height: '100vh' }}
+      gl={{
+        outputEncoding: THREE.LinearEncoding,
+        toneMapping: THREE.NoToneMapping,
+      }}
+    >
+      <color attach="background" args={['black']} />
+      <fog attach="fog" args={['black', 10, 515]} />
+      
+      {/* Adjusted Sparkles Position */}
+      <Sparkles count={20} scale={[20, 10, 10]} size={23.5} speed={3} position={[0, 8, 0]} />
+      
+      {/* Controls */}
+      <OrbitControls
+        enablePan
+        enableZoom
+        enableRotate
+        enableDamping
+        dampingFactor={0.1}
+        target={[0, 0, 0]}
+      />
 
-const App = () => {
-  return (
-    <Canvas camera={{ fov: 70, position: [0, 0, 3] }}>
-      <OrbitControls />
-      <Scene />
+      {/* 3D Model */}
+      <Suspense fallback={null}>
+        <Model />
+      </Suspense>
+
+      {/* Insert the SVG Frame */}
+   
+
+      {/* Post-processing Effects */}
+      <EffectComposer>
+        <Noise opacity={0} />
+      </EffectComposer>
     </Canvas>
   );
-};
-
-export default App;
+}
